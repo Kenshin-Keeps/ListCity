@@ -1,12 +1,16 @@
 package com.example.simpleparadox.listycity;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import android.app.Activity;
+import android.widget.EditText;
+import android.widget.ListView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import android.widget.EditText;
-import android.widget.ListView;
 
 import com.robotium.solo.Solo;
 
@@ -16,14 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 /**
  * Test class for MainActivity. All the UI tests are written here. Robotium test framework is used
  */
 @RunWith(AndroidJUnit4.class)
-public class MainActivityTest{
+public class MainActivityTest {
 
     private Solo solo;
 
@@ -98,5 +99,27 @@ public class MainActivityTest{
     @After
     public void tearDown() throws Exception{
         solo.finishOpenedActivities();
+    }
+    @Test
+    public void IntentTest(){
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+
+        solo.clickOnButton("ADD CITY"); //Click ADD CITY Button
+
+        //Get view for EditText and enter a city name
+        solo.enterText((EditText) solo.getView(R.id.editText_name), "KUET");
+        solo.clickOnButton("CONFIRM"); //Select CONFIRM Button
+        solo.clearEditText((EditText) solo.getView(R.id.editText_name)); //Clear the EditText
+
+        /* True if there is any text: Edmonton on the screen, wait at least 2 seconds and
+        find minimum one match. */
+        assertTrue(solo.waitForText("KUET", 1, 2000));
+
+        solo.clickLongInList(1);
+        solo.assertCurrentActivity("Wrong Activity", MAINACTIVITY2.class);
+        solo.waitForText("KUET", 1, 2000);
+        solo.clickOnButton("Back");
+        assertTrue(solo.waitForText("ADD CITY", 1, 2000));
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
     }
 }
